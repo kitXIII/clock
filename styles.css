@@ -1,0 +1,228 @@
+:root {
+  --clock-diameter: 250px;
+  --clock-border-width: 8px;
+  --clock-face-color: #000000;
+  --hour-hand-color: blue;
+  --minute-hand-color: #ff1e50;;
+  --numbers-font-size: 1.8em;
+  --pi: 3.14159;
+  --center-size: 6px;
+  --clock-radius: calc(var(--clock-diameter) / 2);
+  --center-offset: calc(var(--clock-radius) - var(--clock-border-width));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.layout {
+  margin-top: 30px;
+  position: relative;
+}
+
+.clock {
+  --hours: 00;
+  --minutes: 00;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: var(--clock-diameter);
+  height: var(--clock-diameter);
+
+  border: var(--clock-border-width) solid var(--clock-face-color);
+  border-radius: 50%;
+}
+
+.clock__hand {
+  --hand-width: 2px;
+  --hand-height: 40%;
+  --hand-color: var(--clock-face-color);
+  
+  position: absolute;
+  top: calc(50% - var(--hand-height));
+  left: calc(50% - calc(var(--hand-width) / 2));
+  width: 0;
+  height: var(--hand-height);
+  border: calc(var(--hand-width) / 2) solid var(--hand-color);
+  border-radius: 2px;
+  transform: rotate(var(--turn, 0turn));
+  transform-origin: bottom center;
+}
+
+.clock__center {
+  display: block;
+  position: absolute;
+  top: var(--center-offset);
+  left: var(--center-offset);
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border: var(--center-size) solid var(--clock-face-color);
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.clock__hand--hour {
+  --hand-width: 8px;
+  --hand-height: 27%;
+  --hand-color: var(--hour-hand-color);
+  
+  --hours-turn: calc(1turn * var(--hours) / 12); 
+  --minutes-turn: calc((1 / 12) * 1turn * var(--minutes) / 60);
+
+  --turn: calc(var(--hours-turn) + var(--minutes-turn));
+}
+
+.clock__hand--minute {
+  --hand-width: 4px;
+  --hand-height: 36%;
+  --hand-color: var(--minute-hand-color);
+
+  --turn: calc(1turn * var(--minutes) / 60);
+}
+
+.clock__face {
+  --offset: calc(var(--clock-border-width) * -1);
+  position: absolute;
+  top: var(--offset);
+  left: var(--offset);
+
+  width: var(--clock-diameter);
+  height: var(--clock-diameter);
+}
+
+.clock__face-stroke {
+  --radius: var(--center-offset);
+  --mark: 1;
+  --gap: calc(calc(var(--pi) * var(--radius) / 6) - var(--mark));
+
+  fill: none;
+  stroke: var(--clock-face-color);
+  stroke-width: 10px;
+  cx: var(--clock-radius);
+  cy: var(--clock-radius); 
+  r: var(--radius);
+  stroke-dasharray: var(--mark) var(--gap);
+}
+
+.clock__numbers {
+  --offset: var(--center-offset);
+  position: absolute;
+  top: var(--offset);
+  left: var(--offset);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.clock__numbers-item {
+  --height: calc(var(--center-offset) - var(--numbers-font-size) * 0.5);
+  padding: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: var(--numbers-font-size);
+  line-height: 1em;
+
+  display: block;
+  height: var(--height);
+  transform-origin: bottom left;
+}
+
+.clock_numbers-value {
+  position: absolute;
+}
+
+.clock__numbers-item--1{
+  transform: rotate(30deg);
+}
+
+.clock__numbers-item--1 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-30deg);
+}
+
+.clock__numbers-item--2{
+  transform: rotate(60deg);
+}
+
+.clock__numbers-item--2 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-60deg);
+}
+
+.clock__numbers-item--3 {
+  transform: rotate(90deg);
+}
+
+.clock__numbers-item--3 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.clock__numbers-item--4 {
+  transform: rotate(120deg);
+}
+
+.clock__numbers-item--4 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-120deg);
+}
+
+.clock__numbers-item--5 {
+  transform: rotate(150deg);
+}
+
+.clock__numbers-item--5 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-150deg);
+}
+
+.clock__numbers-item--6 {
+  transform: rotate(180deg);
+}
+
+.clock__numbers-item--6 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-180deg);
+}
+
+.clock__numbers-item--7 {
+  transform: rotate(210deg);
+}
+
+.clock__numbers-item--7 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-210deg);
+}
+
+.clock__numbers-item--8 {
+  transform: rotate(240deg);
+}
+
+.clock__numbers-item--8 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-240deg);
+}
+
+.clock__numbers-item--9 {
+  transform: rotate(270deg);
+}
+
+.clock__numbers-item--9 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-270deg);
+}
+
+.clock__numbers-item--10 {
+  transform: rotate(300deg);
+}
+
+.clock__numbers-item--10 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-300deg);
+}
+
+.clock__numbers-item--11 {
+  transform: rotate(330deg);
+}
+
+.clock__numbers-item--11 .clock_numbers-value {
+  transform: translate(-50%, -50%) rotate(-330deg);
+}
+
+.clock__numbers-item--12 .clock_numbers-value {
+  transform: translate(-50%, -50%);
+}
