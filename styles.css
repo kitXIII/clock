@@ -81,6 +81,9 @@
   --hand-color: var(--minute-hand-color);
 
   --turn: calc(1turn * var(--minutes) / 60);
+
+  cursor: pointer;
+  z-index: 5;
 }
 
 .clock__face {
