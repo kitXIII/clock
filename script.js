@@ -75,10 +75,9 @@ const app = {
           return;
         }
 
-        // document.addEventListener("mousemove", this.minuteHand.onMouseMove);
-        // document.onmouseup = () =>
-        //   this.setCurrentState(STATES.MANIPULATING_MOUSE_STOP);
-
+        document.addEventListener("touchmove", this.minuteHand.onTouchMove, false);
+        document.addEventListener("touchend", this.minuteHand.onTouchEnd, false);
+       
         this.currentState = state;
         break;
 
@@ -87,11 +86,15 @@ const app = {
           return;
         }
 
-        // document.removeEventListener(
-        //   "mousemove",
-        //   this.minuteHand.onMouseMove
-        // );
-        // document.onmouseup = null;
+        document.removeEventListener(
+          "touchmove",
+          this.minuteHand.onTouchMove
+        );
+
+        document.removeEventListener(
+          "touchend",
+          this.minuteHand.onTouchEnd
+        );
 
         this.currentState = state;
         break;
@@ -141,6 +144,7 @@ const app = {
     init: function() {
       this.element = document.querySelector(SELECTORS.MINUTE_HAND);
       this.element.ondragstart = () => false;
+      this.element.addEventListener("touchstart", this.onTouchStart, false);
       this.element.onmousedown = this.onMouseDownHandler;
     },
     element: null,
@@ -166,10 +170,35 @@ const app = {
         return;
       }
 
+      app.minuteHand.movingProcess({ x: clientX, y: clientY });
+    },
+    onTouchStart: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      app.setCurrentState(STATES.MANIPULATING_TOUCH_RUN);
+      const { clientX, clientY } = e.changedTouches[0];
+      app.minuteHand.setCurrentCoords(clientX, clientY);
+    },
+    onTouchEnd: function(e) {
+      e.preventDefault();
+      app.setCurrentState(STATES.MANIPULATING_TOUCH_STOP);
+    },
+    onTouchMove: function(e) {
+      // e.preventDefault();
+      const { clientX, clientY } = e.changedTouches[0];
+
+      if (!app.clock.checkIfXYInside(clientX, clientY)) {
+        app.setCurrentState(STATES.MANIPULATING_TOUCH_STOP);
+        return;
+      }
+      
+      app.minuteHand.movingProcess({ x: clientX, y: clientY });
+    },
+    movingProcess: function(nextPoint) {
       const minutes = getDiffInMinutes(
         app.clock.center,
         app.minuteHand.currentCoords,
-        { x: clientX, y: clientY }
+        nextPoint
       );
 
       const newTime =
@@ -177,7 +206,7 @@ const app = {
           ? addMinutesToTime(app.clock.currentTime, minutes)
           : subtractMinutesFromTime(app.clock.currentTime, Math.abs(minutes));
 
-      app.minuteHand.setCurrentCoords(clientX, clientY);
+      app.minuteHand.setCurrentCoords(nextPoint.x, nextPoint.y);
       app.clock.setClockTime(newTime.hours, newTime.minutes);
     }
   }
