@@ -166,19 +166,17 @@ const app = {
         return;
       }
 
-      const angle = getAngleInRads(
+      const minutes = getDiffInMinutes(
         app.clock.center,
         app.minuteHand.currentCoords,
         { x: clientX, y: clientY }
       );
 
-      const minutes = convertRadsToMinutes(angle);
+      const newTime =
+        minutes >= 0
+          ? addMinutesToTime(app.clock.currentTime, minutes)
+          : subtractMinutesFromTime(app.clock.currentTime, Math.abs(minutes));
 
-      if (!minutes) {
-        return;
-      }
-
-      const newTime = addMinutesToTime(app.clock.currentTime, minutes);
       app.minuteHand.setCurrentCoords(clientX, clientY);
       app.clock.setClockTime(newTime.hours, newTime.minutes);
     }
@@ -213,6 +211,19 @@ function getClientRectCenter(rect) {
   const x = Math.round((rect.right - rect.left) / 2) + rect.left;
   const y = Math.round((rect.bottom - rect.top) / 2) + rect.top;
   return { x, y };
+}
+
+function getDiffInMinutes(center, prev, next) {
+  const angle = getAngleInRads(center, prev, next);
+  const minutes = convertRadsToMinutes(angle);
+
+  if (!minutes) {
+    return 0;
+  }
+
+  const pseudoScalarMulitple = getPseudoScalarMulitple(center, prev, next);
+
+  return pseudoScalarMulitple >= 0 ? minutes : -minutes;
 }
 
 function getAngleInRads(center, prev, next) {
@@ -260,4 +271,29 @@ function addMinutesToTime(time, minutes) {
   const correctedHours = newHours - 24;
 
   return { hours: correctedHours, minutes: correctedMinutes };
+}
+
+function subtractMinutesFromTime(time, minutes) {
+  const newMinutes = time.minutes - minutes;
+  if (newMinutes >= 0) {
+    return { ...time, minutes: newMinutes };
+  }
+
+  const correctedMinutes = newMinutes + 60;
+  const newHours = time.hours - 1;
+
+  if (newHours >= 0) {
+    return { hours: newHours, minutes: correctedMinutes };
+  }
+
+  const correctedHours = newHours + 24;
+
+  return { hours: correctedHours, minutes: correctedMinutes };
+}
+
+function getPseudoScalarMulitple(center, point1, point2) {
+  const a = { x: point1.x - center.x, y: point1.y - center.y };
+  const b = { x: point2.x - center.x, y: point2.y - center.y };
+
+  return a.x * b.y - a.y * b.x;
 }
