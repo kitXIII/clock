@@ -7,8 +7,10 @@ const SELECTORS = {
 
 const STATES = {
   AUTOMATIC: "automatic",
-  MANIPULATING_RUN: "manipulating run",
-  MANIPULATING_STOP: "manipulating stop"
+  MANIPULATING_MOUSE_RUN: "manipulating mouse run",
+  MANIPULATING_MOUSE_STOP: "manipulating mouse stop",
+  MANIPULATING_TOUCH_RUN: "manipulating touch run",
+  MANIPULATING_TOUCH_STOP: "manipulating touch stop"
 };
 
 function main() {
@@ -31,30 +33,65 @@ const app = {
 
         break;
 
-      case STATES.MANIPULATING_RUN:
+      case STATES.MANIPULATING_MOUSE_RUN:
         if (this.currentState === STATES.AUTOMATIC) {
           this.clock.setGlobalTimePeriodically.stop();
+        }
+
+        if (
+          this.currentState === STATES.MANIPULATING_MOUSE_RUN ||
+          this.currentState === STATES.MANIPULATING_TOUCH_RUN
+        ) {
+          return;
         }
 
         document.addEventListener("mousemove", this.minuteHand.onMouseMove);
         document.onmouseup = () =>
-          this.setCurrentState(STATES.MANIPULATING_STOP);
+          this.setCurrentState(STATES.MANIPULATING_MOUSE_STOP);
 
         this.currentState = state;
         break;
 
-      case STATES.MANIPULATING_STOP:
+      case STATES.MANIPULATING_MOUSE_STOP:
+        if (this.currentState !== STATES.MANIPULATING_MOUSE_RUN) {
+          return;
+        }
+
+        document.removeEventListener("mousemove", this.minuteHand.onMouseMove);
+        document.onmouseup = null;
+
+        this.currentState = state;
+        break;
+
+      case STATES.MANIPULATING_TOUCH_RUN:
         if (this.currentState === STATES.AUTOMATIC) {
           this.clock.setGlobalTimePeriodically.stop();
         }
 
-        if (this.currentState === STATES.MANIPULATING_RUN) {
-          document.removeEventListener(
-            "mousemove",
-            this.minuteHand.onMouseMove
-          );
-          document.onmouseup = null;
+        if (
+          this.currentState === STATES.MANIPULATING_MOUSE_RUN ||
+          this.currentState === STATES.MANIPULATING_TOUCH_RUN
+        ) {
+          return;
         }
+
+        // document.addEventListener("mousemove", this.minuteHand.onMouseMove);
+        // document.onmouseup = () =>
+        //   this.setCurrentState(STATES.MANIPULATING_MOUSE_STOP);
+
+        this.currentState = state;
+        break;
+
+      case STATES.MANIPULATING_TOUCH_STOP:
+        if (this.currentState !== STATES.MANIPULATING_TOUCH_RUN) {
+          return;
+        }
+
+        // document.removeEventListener(
+        //   "mousemove",
+        //   this.minuteHand.onMouseMove
+        // );
+        // document.onmouseup = null;
 
         this.currentState = state;
         break;
@@ -118,14 +155,14 @@ const app = {
     onMouseDownHandler: function(e) {
       e.preventDefault();
       e.stopPropagation();
-      app.setCurrentState(STATES.MANIPULATING_RUN);
+      app.setCurrentState(STATES.MANIPULATING_MOUSE_RUN);
       const { clientX, clientY } = e;
       app.minuteHand.setCurrentCoords(clientX, clientY);
     },
     onMouseMove: function(e) {
       const { clientX, clientY } = e;
       if (!app.clock.checkIfXYInside(clientX, clientY)) {
-        app.setCurrentState(STATES.MANIPULATING_STOP);
+        app.setCurrentState(STATES.MANIPULATING_MOUSE_STOP);
         return;
       }
 
@@ -136,7 +173,7 @@ const app = {
       );
 
       const minutes = convertRadsToMinutes(angle);
-      
+
       if (!minutes) {
         return;
       }
@@ -196,7 +233,7 @@ function getAngleInRads(center, prev, next) {
     (a1 * a2 + b1 * b2) /
     (Math.sqrt(a1 * a1 + b1 * b1) * Math.sqrt(a2 * a2 + b2 * b2));
 
-    return Math.acos(cosAngle);
+  return Math.acos(cosAngle);
 }
 
 function convertRadsToMinutes(radian) {
